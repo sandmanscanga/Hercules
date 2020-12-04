@@ -18,8 +18,6 @@ def Escalate():
 
 
 """  Parse Command Line Arguments  """
-
-
 def Args():
     ## ARGUMENT PARSER
     parser = AP(description="Remote Password Cracking")
