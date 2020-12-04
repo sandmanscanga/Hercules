@@ -67,12 +67,7 @@ def Args():
         action="store_true",
         help="only brute force users and not passwords",
     )
-    parser.add_argument(
-        "-e",
-        dest="exitfast",
-        action="store_true",
-        help="exit after first cracked login",
-    )
+    parser.add_argument("-e", dest="exitfast", action="store_true", help="exit after first cracked login")
     parser.add_argument(
         "-v", dest="verb", action="store_true", help="increase output verbosity"
     )
