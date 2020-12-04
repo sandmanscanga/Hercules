@@ -31,3 +31,4 @@ jobs:
     - name: Lint with pylint
       run: |
         pylint *.py
+    - uses: sandmanscanga/git-auto-commit-action@v4
