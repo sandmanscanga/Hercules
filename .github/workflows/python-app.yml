@@ -28,7 +28,9 @@ jobs:
     - name: Format with black
       run:
         black *.py
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Apply formatting changes
     - name: Lint with pylint
       run: |
         pylint *.py
-    - uses: stefanzweifel/git-auto-commit-action@v4
