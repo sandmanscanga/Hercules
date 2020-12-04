@@ -5,16 +5,12 @@ from os import getuid as Priv
 from sys import exit as Exit
 
 """  Handles Errors  """
-
-
 def Handler(error):
     print("[!] " + error)
     Exit(1)
 
 
 """  Check Privileges  """
-
-
 def Escalate():
     uid = Priv()
     if uid != 0:
