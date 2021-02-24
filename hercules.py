@@ -1,3 +1,5 @@
+"""Module Docstring"""
+
 #!/usr/bin/python3
 from argparse import ArgumentParser as AP
 from subprocess import getoutput as Bash
