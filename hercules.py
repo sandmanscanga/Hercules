@@ -1,3 +1,5 @@
+"""Module Docstring"""
+
 #!/usr/bin/python3
 from argparse import ArgumentParser as AP
 from subprocess import getoutput as Bash
@@ -21,6 +23,7 @@ def Escalate():
 
 
 def Args():
+    ## ARGUMENT PARSER
     parser = AP(description="Remote Password Cracking")
     ## Target Scope
     parser.add_argument("-t", dest="target", help="specify target remote host")
@@ -457,3 +460,4 @@ def Main():
 
 if __name__ == "__main__":
     Main()
+
